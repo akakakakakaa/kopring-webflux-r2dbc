@@ -3,7 +3,7 @@ server:
 
 spring:
   r2dbc:
-    url: r2dbc:postgresql://localhost:5433
+    url: r2dbc:postgresql://localhost:5434
     username: postgres
     password: postgres
     name: postgres
@@ -13,6 +13,6 @@ spring:
     enabled: true
     baseline-on-migrate: true
     baseline-version: 0
-    url: jdbc:postgresql://localhost:5433
+    url: jdbc:postgresql://localhost:5434/postgres
     user: postgres
     password: postgres
