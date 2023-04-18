@@ -2,17 +2,18 @@ package com.mansu.shoppingmall.service
 
 import com.mansu.shoppingmall.model.Member
 import com.mansu.shoppingmall.repository.MemberRepository
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.reactor.mono
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import reactor.core.publisher.Mono
 
 @Service
 @Transactional
-class MemberService(val memberRepository: MemberRepository): UserDetailsService {
+class MemberService(val memberRepository: MemberRepository): ReactiveUserDetailsService {
     suspend fun saveMember(member: Member): Member {
         validateDuplicateMember(member)
         return memberRepository.save(member)
@@ -26,13 +27,9 @@ class MemberService(val memberRepository: MemberRepository): UserDetailsService 
     }
 
     @Throws(UsernameNotFoundException::class)
-    override fun loadUserByUsername(username: String): UserDetails {
-        val member: Member = runBlocking { memberRepository.findByEmail(username) } ?: throw UsernameNotFoundException("email not found")
+    override fun findByUsername(username: String?): Mono<UserDetails> = mono {
+        val member = memberRepository.findByEmail(username!!) ?: throw UsernameNotFoundException("email not found")
 
-        return User.builder()
-            .username(member.email)
-            .password(member.password)
-            .roles(member.role.toString())
-            .build()
+        return@mono User(member.email, member.password, listOf(member))
     }
 }

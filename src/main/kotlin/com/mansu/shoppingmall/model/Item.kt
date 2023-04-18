@@ -8,7 +8,7 @@ import type.ItemSellStatus
 import java.time.LocalDateTime
 
 @Table("item")
-class Item (
+data class Item (
     @Id var id: Long? = null,
     val name: String,
     val price: Int,
